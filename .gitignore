@@ -15,7 +15,8 @@
 *.out
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
+.DS_Store
+vendor/
 
 # Go workspace file
 go.work
