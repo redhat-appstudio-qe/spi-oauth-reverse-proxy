@@ -53,7 +53,7 @@ func main() {
 			return
 		}
 
-		callback := callbackParsed.Get("calback")
+		callback := callbackParsed.Get("callback")
 		if callback == "" {
 			context.AbortWithError(http.StatusBadRequest, fmt.Errorf("callback in state is empty"))
 			log.Println("callback in state is empty")
@@ -83,7 +83,6 @@ func main() {
 		redirectAllowed := isDomainAllowed(u.Host, allowedRedirects)
 		if !redirectAllowed {
 			context.AbortWithError(http.StatusBadRequest, fmt.Errorf("redirect url is not allowed"))
-			log.Println("redirect url is not allowed")
 			return
 		}
 		context.Redirect(http.StatusMovedPermanently, u.String())
