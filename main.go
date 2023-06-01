@@ -2,8 +2,12 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
+	"os"
+	"regexp"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,41 +15,62 @@ import (
 func main() {
 	router := gin.New()
 
+	// ALLOWED_REDIRECT_URLS will list the urls that the proxy is allowed to redirect to
+	// one of the domains listed here should match the one provided by the callback query parameter encoded in state
+	// if envirnonment varuable is not set, we define some defualt values
+	allowedRedirects := []string{".redhat.com", ".opentlc.com", ".openshiftapps.com"}
+
+	allowedRedirectsEnv, allowedRedirectsEnvIsSet := os.LookupEnv("ALLOWED_REDIRECT_URLS")
+	if allowedRedirectsEnvIsSet {
+		// if the env is set, override the defualt values
+		allowedRedirects = strings.Split(allowedRedirectsEnv, ",")
+	}
+
+	log.Println("configured ALLOWED_REDIRECT_URLS: ", strings.Join(allowedRedirects, ","))
+
 	router.GET("/oauth/callback", func(context *gin.Context) {
+
 		values := context.Request.URL.Query()
 
 		callbackRaw := values.Get("state")
 		if callbackRaw == "" {
 			context.AbortWithError(http.StatusBadRequest, fmt.Errorf("state from github is empty"))
+			log.Println("state from github is empty")
+			return
 		}
 
 		code := values.Get("code")
 		if code == "" {
 			context.AbortWithError(http.StatusBadRequest, fmt.Errorf("code from github is empty"))
+			log.Println("code from github is empty")
 			return
 		}
 
 		callbackParsed, err := url.ParseQuery(callbackRaw)
 		if err != nil {
 			context.AbortWithError(http.StatusBadRequest, err)
+			log.Println(err)
 			return
 		}
 
 		callback := callbackParsed.Get("calback")
 		if callback == "" {
 			context.AbortWithError(http.StatusBadRequest, fmt.Errorf("callback in state is empty"))
+			log.Println("callback in state is empty")
 			return
 		}
 
 		state := callbackParsed.Get("state")
 		if state == "" {
 			context.AbortWithError(http.StatusBadRequest, fmt.Errorf("state in state is empty"))
+			log.Println("state in state is empty")
 			return
 		}
 
 		u, err := url.Parse(callback)
 		if err != nil {
 			context.AbortWithError(http.StatusBadRequest, err)
+			log.Println(err)
 			return
 		}
 
@@ -55,8 +80,27 @@ func main() {
 		q.Set("state", state)
 		u.RawQuery = q.Encode()
 
-		context.Redirect(http.StatusFound, u.String())
+		redirectAllowed := isDomainAllowed(u.Host, allowedRedirects)
+		if !redirectAllowed {
+			context.AbortWithError(http.StatusBadRequest, fmt.Errorf("redirect url is not allowed"))
+			log.Println("redirect url is not allowed")
+			return
+		}
+		context.Redirect(http.StatusMovedPermanently, u.String())
 	})
 
 	router.Run(":8080")
+}
+
+func isDomainAllowed(domain string, allowedDomains []string) bool {
+	for _, d := range allowedDomains {
+		regex := regexp.MustCompile("." + d + "$")
+		match := regex.Match([]byte(domain))
+		if match {
+			fmt.Println(domain, " is allowed")
+			return true
+		}
+	}
+	fmt.Println(domain, " is not allowed")
+	return false
 }
