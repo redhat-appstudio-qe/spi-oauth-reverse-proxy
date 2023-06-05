@@ -19,11 +19,12 @@ func main() {
 	allowedRedirects := []string{}
 
 	allowedRedirectsEnv, allowedRedirectsEnvIsSet := os.LookupEnv("ALLOWED_REDIRECT_URLS")
-	if allowedRedirectsEnvIsSet {
+	if allowedRedirectsEnvIsSet && allowedRedirectsEnv != "" {
 		// if the env is set, override the defualt values
 		allowedRedirects = strings.Split(allowedRedirectsEnv, ",")
 	}
 
+	log.Println(len(allowedRedirects))
 	log.Println("configured ALLOWED_REDIRECT_URLS: ", allowedRedirects)
 
 	router.GET("/oauth/callback", func(context *gin.Context) {
@@ -90,6 +91,10 @@ func main() {
 }
 
 func isDomainAllowed(domain string, allowedDomains []string) bool {
+	if len(allowedDomains) == 0 {
+		log.Println("no domains allowed")
+		return false
+	}
 	for _, d := range allowedDomains {
 		match := strings.HasSuffix(domain, d)
 		if match {
