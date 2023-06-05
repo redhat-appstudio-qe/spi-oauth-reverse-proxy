@@ -16,7 +16,6 @@ func main() {
 
 	// ALLOWED_REDIRECT_URLS will list the urls that the proxy is allowed to redirect to
 	// one of the domains listed here should match the one provided by the callback query parameter encoded in state
-	// if envirnonment varuable is not set, we define some defualt values
 	allowedRedirects := []string{}
 
 	allowedRedirectsEnv, allowedRedirectsEnvIsSet := os.LookupEnv("ALLOWED_REDIRECT_URLS")
@@ -25,7 +24,7 @@ func main() {
 		allowedRedirects = strings.Split(allowedRedirectsEnv, ",")
 	}
 
-	log.Println("configured ALLOWED_REDIRECT_URLS: ", strings.Join(allowedRedirects, ","))
+	log.Println("configured ALLOWED_REDIRECT_URLS: ", allowedRedirects)
 
 	router.GET("/oauth/callback", func(context *gin.Context) {
 
