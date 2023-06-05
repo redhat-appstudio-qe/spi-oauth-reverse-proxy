@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"regexp"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -18,7 +17,7 @@ func main() {
 	// ALLOWED_REDIRECT_URLS will list the urls that the proxy is allowed to redirect to
 	// one of the domains listed here should match the one provided by the callback query parameter encoded in state
 	// if envirnonment varuable is not set, we define some defualt values
-	allowedRedirects := []string{".redhat.com", ".opentlc.com", ".openshiftapps.com"}
+	allowedRedirects := []string{}
 
 	allowedRedirectsEnv, allowedRedirectsEnvIsSet := os.LookupEnv("ALLOWED_REDIRECT_URLS")
 	if allowedRedirectsEnvIsSet {
@@ -93,8 +92,7 @@ func main() {
 
 func isDomainAllowed(domain string, allowedDomains []string) bool {
 	for _, d := range allowedDomains {
-		regex := regexp.MustCompile("." + d + "$")
-		match := regex.Match([]byte(domain))
+		match := strings.HasSuffix(domain, d)
 		if match {
 			fmt.Println(domain, " is allowed")
 			return true
