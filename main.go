@@ -94,10 +94,10 @@ func isDomainAllowed(domain string, allowedDomains []string) bool {
 	for _, d := range allowedDomains {
 		match := strings.HasSuffix(domain, d)
 		if match {
-			fmt.Println(domain, " is allowed")
+			log.Println(domain, " is allowed")
 			return true
 		}
 	}
-	fmt.Println(domain, " is not allowed")
+	log.Println(domain, " is not allowed")
 	return false
 }
