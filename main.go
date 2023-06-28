@@ -101,6 +101,6 @@ func isDomainAllowed(domain string, allowedDomains []string) bool {
 			return true
 		}
 	}
-	log.Println(domain, " is not allowed")
+	log.Println(domain, " is NOT allowed")
 	return false
 }
