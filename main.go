@@ -24,7 +24,7 @@ func main() {
 		allowedRedirects = strings.Split(allowedRedirectsEnv, ",")
 	}
 
-	log.Println("configured ALLOWED_REDIRECT_URLS: ", allowedRedirects)
+	log.Println("CONFIGURED ALLOWED_REDIRECT_URLS ARE: ", allowedRedirects)
 
 	router.GET("/oauth/callback", func(context *gin.Context) {
 
@@ -101,6 +101,6 @@ func isDomainAllowed(domain string, allowedDomains []string) bool {
 			return true
 		}
 	}
-	log.Println(domain, " is NOT ALLOWED")
+	log.Println(domain, " IS NOT ALLOWED")
 	return false
 }
