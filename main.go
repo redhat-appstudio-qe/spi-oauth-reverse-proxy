@@ -24,7 +24,7 @@ func main() {
 		allowedRedirects = strings.Split(allowedRedirectsEnv, ",")
 	}
 
-	log.Println("CONFIGURED ALLOWED_REDIRECT_URLS ARE: ", allowedRedirects)
+	log.Println("ALLOWED_REDIRECT_URLS ARE: ", allowedRedirects)
 
 	router.GET("/oauth/callback", func(context *gin.Context) {
 
