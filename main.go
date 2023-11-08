@@ -86,6 +86,51 @@ func main() {
 		context.Redirect(http.StatusMovedPermanently, u.String())
 	})
 
+	var html = `
+		<!DOCTYPE html>
+		<html>
+		<head>
+				<title>Login Page</title>
+				<style>
+					input[type=text] {width: 500px; height: 40px; font-size: 15px;}
+					input[type=submit] {width: 200px; height: 40px; font-size: 15px;}
+				</style>
+		</head>
+		<body>
+		
+		<form id="loginForm" action="%%SPI_URL%%" method="POST">
+				<input type="text" id="k8s_token" name="k8s_token" placeholder="your k8s_token goes here..." required>
+				<br>
+				<input type="submit" id="submit_token" name="submit_token" value="Submit" required>
+		</form>
+		
+		<script type="text/javascript">
+				window.onload = function() {
+						//document.getElementById('loginForm').submit();
+				};
+		</script>
+		
+		</body>
+		</html>
+	`
+
+	router.GET("/login", func(context *gin.Context) {
+		values := context.Request.URL.Query()
+		spi_url := values.Get("url")
+		if spi_url == "" {
+			context.Data(http.StatusBadRequest, "text/html; charset=utf-8", []byte("<p>required URL is empty</p>"))
+			log.Println("url is empty")
+			return
+		}
+		u, err := url.Parse(spi_url)
+		if err != nil {
+			context.Data(http.StatusBadRequest, "text/html; charset=utf-8", []byte("<p>error parsing url</p>"))
+			log.Println(err)
+			return
+		}
+
+		context.Data(http.StatusOK, "text/html; charset=utf-8", []byte(strings.Replace(html, "%%SPI_URL%%", u.String(), 1)))
+	})
 	router.Run(":8080")
 }
 
