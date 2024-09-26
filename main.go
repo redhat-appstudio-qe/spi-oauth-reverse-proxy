@@ -54,14 +54,18 @@ func main() {
 		callback := callbackParsed.Get("callback")
 		if callback == "" {
 			context.AbortWithError(http.StatusBadRequest, fmt.Errorf("callback in state is empty"))
+
 			log.Println("callback in state is empty")
+
 			return
 		}
 
 		state := callbackParsed.Get("state")
 		if state == "" {
 			context.AbortWithError(http.StatusBadRequest, fmt.Errorf("state in state is empty"))
+
 			log.Println("state in state is empty")
+
 			return
 		}
 
